@@ -1,0 +1,5 @@
+{
+  "name": "Analizzatore di Contratti AI",
+  "description": "Un'applicazione web che utilizza l'IA per analizzare un contratto di lavoro, estraendo e riassumendo i punti a favore (pro) e a sfavore (contro) per il lavoratore.",
+  "requestFramePermissions": []
+}
