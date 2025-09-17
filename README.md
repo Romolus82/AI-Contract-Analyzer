@@ -1,17 +1,15 @@
+
 # AI Contract Analyzer
 
 [![Powered by Google Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-blue.svg)](https://ai.google.dev/)
 
 An intelligent web application that uses the Google Gemini API to analyze legal documents, extract key points, and answer specific questions about the content.
-![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/1.jpg?raw=true)
-![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/2.jpg?raw=true)
-![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/3.jpg?raw=true)
 
 ---
 
 ## 🚀 Key Features
 
--   **Multi-Format Analysis**: Upload contracts in **PDF, DOCX, PNG, or JPG** format, or simply paste the text directly.
+-   **Multi-Format Analysis**: Upload contracts in **PDF, DOCX, PNG, or JPG** format (up to 10MB), or simply paste the text directly (up to 30,000 characters).
 -   **Automatic Identification**: The AI detects if the document is a contract and identifies its specific type (e.g., Employment Contract, Lease Agreement).
 -   **Quick Summary & Evaluation**: Get an at-a-glance summary of the contract's purpose and a synthetic evaluation of its fairness before diving into the details.
 -   **Pros and Cons Extraction**: Receive a clear, structured summary of the positive aspects (Pros) and points of concern (Cons) from the perspective of the person signing the contract.
@@ -63,11 +61,7 @@ To run the application, you need a Google Gemini API key.
     API_KEY=YOUR_API_KEY_HERE
     ```
 
-    **Important**: Make sure the `.env` file is included in your `.gitignore` to avoid exposing your API key publicly. The framework used assumes that this `process.env.API_KEY` environment variable is available at runtime.
-
 ### 4. Start the Development Server
-
-Once the API key is configured, you can start the application:
 
 ```bash
 npm run dev
@@ -75,14 +69,28 @@ npm run dev
 
 Open the URL provided in your terminal (usually `http://localhost:5173`) in your browser to see the application running.
 
+## ⚠️ Important Security Note: API Key Exposure
+
+This project is configured to be run easily for development and prototyping purposes. As a pure front-end application, the `API_KEY` from your `.env` file is bundled with the JavaScript and **is exposed to anyone who uses the web app**.
+
+**This is a significant security risk in a production environment.**
+
+For a real-world deployment, you **must not** expose your API key on the client side. The recommended best practice is to create a simple backend server (e.g., using Node.js/Express, Python/Flask) that acts as a proxy.
+
+1.  The frontend makes requests to your backend server.
+2.  Your backend server securely stores the API key and makes the actual calls to the Google Gemini API.
+3.  The backend then forwards the response from the Gemini API back to the frontend.
+
+This ensures your API key is never exposed to the public.
+
 ## 💡 How It Works
 
-1.  **Upload**: The user uploads a file or pastes text. The files are converted into a format compatible with the Gemini API (text or Base64 for images/PDFs).
+1.  **Upload**: The user uploads a file or pastes text. The app validates the input against size limits. The files are then converted into a format compatible with the Gemini API (text or Base64 for images/PDFs).
 2.  **Identification**: A first call to the Gemini API is made with a specific prompt to determine if the document is a contract and what type it is. The expected response is a structured JSON.
 3.  **In-Depth Analysis**: If the document is a valid contract, a second call is made. This time, the model receives a system instruction that makes it act as a specialized lawyer, tasked with analyzing the text and returning a JSON containing a summary, an evaluation, and lists of pros and cons, each with a description and the original source.
 4.  **Display and Chat**: The results are shown to the user in a clear format. Simultaneously, a chat session is initialized, pre-loaded with the document's content as context, ready to receive the user's questions.
 
-## ⚠️ Disclaimer
+## ⚖️ Disclaimer
 
 This application is an informational tool based on artificial intelligence and **does not provide legal advice**. The analysis generated is intended to offer a preliminary overview and does not in any way replace a review by a qualified professional. Always consult a lawyer for legal matters.
 

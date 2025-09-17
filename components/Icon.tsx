@@ -1,6 +1,7 @@
+
 import React from 'react';
 
-type IconName = 'thumbsUp' | 'thumbsDown' | 'warning' | 'document' | 'upload' | 'file' | 'info' | 'chatBubble' | 'flagUk' | 'flagIt' | 'print';
+type IconName = 'thumbsUp' | 'thumbsDown' | 'warning' | 'document' | 'upload' | 'file' | 'info' | 'chatBubble' | 'flagUk' | 'flagIt' | 'print' | 'close' | 'user';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;
@@ -66,6 +67,16 @@ const icons: Record<IconName, JSX.Element> = {
   print: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6 18.25m10.56 0L18 18.25m-12 0h12M12 15V9m-4.5 6H12m-12.75-6h17.5c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-17.5c-.621 0-1.125-.504-1.125-1.125v-9.75c0-.621.504-1.125 1.125-1.125Z" />
+    </svg>
+  ),
+  close: (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  ),
+  user: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
     </svg>
   ),
 };

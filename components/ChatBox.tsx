@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from '../types';
 import { Icon } from './Icon';
@@ -45,9 +46,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
           className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors"
           aria-label={t('chat.closeAria')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
+          <Icon name="close" className="w-6 h-6" />
         </button>
       </div>
 
@@ -64,9 +63,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
               )}
                {msg.role === 'user' && (
                  <span className="flex-shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-slate-600">
-                        <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
-                    </svg>
+                    <Icon name="user" className="w-5 h-5 text-slate-600" />
                  </span>
               )}
               <div className={`p-3 rounded-lg max-w-xs md:max-w-sm ${msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-white text-gray-800 border'}`}>

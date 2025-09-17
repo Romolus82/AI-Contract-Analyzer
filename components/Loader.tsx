@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from '../i18n/LanguageContext';
 
@@ -20,7 +21,11 @@ export const Loader: React.FC<LoaderProps> = ({ analysisStep, contractType }) =>
   const message = messages[analysisStep] || messages.IDENTIFYING;
 
   return (
-    <div className="flex flex-col justify-center items-center p-8 text-center">
+    <div
+      className="flex flex-col justify-center items-center p-8 text-center"
+      role="status"
+      aria-live="polite"
+    >
       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mb-6"></div>
       <p className="text-lg font-semibold text-gray-700">{message}</p>
       <p className="text-sm text-gray-500 mt-2">{t('loader.takeMoments')}</p>

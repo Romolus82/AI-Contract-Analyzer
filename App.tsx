@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import type { Chat } from "@google/genai";
 import { ContractInput } from './components/ContractInput';
@@ -14,6 +15,9 @@ import { Icon } from './components/Icon';
 import { useTranslation } from './i18n/LanguageContext';
 
 type AnalysisStep = 'IDLE' | 'IDENTIFYING' | 'ANALYZING';
+
+const MAX_FILE_SIZE_MB = 10;
+const MAX_TEXT_LENGTH = 30000;
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -47,6 +51,9 @@ const App: React.FC = () => {
     try {
       let content: any;
       if (file) {
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+          throw new Error(t('error.fileTooLarge'));
+        }
         const fileExtension = file.name.split('.').pop()?.toLowerCase();
         if (fileExtension === 'docx') {
           content = await extractTextFromDocx(file);
@@ -57,6 +64,9 @@ const App: React.FC = () => {
           throw new Error("Unsupported file type. Please upload a DOCX, PDF, PNG, or JPG file.");
         }
       } else if (contractText.trim()) {
+         if (contractText.length > MAX_TEXT_LENGTH) {
+          throw new Error(t('error.textTooLong'));
+        }
         content = contractText;
       } else {
         throw new Error("Please provide a contract by uploading a file or pasting the text.");
