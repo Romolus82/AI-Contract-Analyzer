@@ -40,7 +40,8 @@
     "showSourceAria": "Mostra fonte",
     "askDetailsAria": "Chiedi dettagli",
     "disclaimerTitle": "Disclaimer",
-    "disclaimerText": "Questa analisi è generata da un'intelligenza artificiale e deve essere considerata come supporto informativo, non come consulenza legale. Si raccomanda vivamente di consultare un avvocato qualificato per una revisione completa e professionale del contratto."
+    "disclaimerText": "Questa analisi è generata da un'intelligenza artificiale e deve essere considerata come supporto informativo, non come consulenza legale. Si raccomanda vivamente di consultare un avvocato qualificato per una revisione completa e professionale del contratto.",
+    "printReport": "Stampa Report"
   },
   "sourceModal": {
     "title": "Estratto dal Documento",

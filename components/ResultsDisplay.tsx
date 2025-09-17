@@ -31,7 +31,7 @@ const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 
               <li key={`${color}-${index}`} className="flex items-start">
                 <span className={`${iconColor} mr-3 mt-1 text-xl flex-shrink-0`} aria-hidden="true">{icon === 'thumbsUp' ? '+' : '-'}</span>
                 <span className="flex-grow">{point.description}</span>
-                <div className="flex items-center flex-shrink-0 ml-2 space-x-2">
+                <div className="flex items-center flex-shrink-0 ml-2 space-x-2 no-print">
                     {point.source && (
                        <button onClick={() => setModalContent(point.source)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label={t('results.showSourceAria')}>
                          <Icon name="info" className="h-5 w-5"/>
@@ -60,11 +60,25 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, 
   const { t } = useTranslation();
   const { summary, evaluation, pros, cons } = analysisResult;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div>
-       <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        {t('results.title')}<span className="text-indigo-600">{contractType}</span>
-      </h2>
+    <div className="printable-area">
+       <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t('results.title')}<span className="text-indigo-600">{contractType}</span>
+          </h2>
+          <button
+            onClick={handlePrint}
+            className="no-print flex items-center gap-2 rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+            aria-label={t('results.printReport')}
+          >
+            <Icon name="print" className="h-5 w-5" />
+            <span>{t('results.printReport')}</span>
+          </button>
+       </div>
 
       <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('results.summaryTitle')}</h3>
@@ -100,7 +114,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, 
       </div>
 
       {/* Disclaimer */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="mt-8 pt-6 border-t border-gray-200 no-print">
          <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200">
           <div className="flex">
             <div className="flex-shrink-0">

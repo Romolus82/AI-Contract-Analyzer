@@ -182,11 +182,11 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans">
-       <div className="absolute top-4 right-4 z-10">
+       <div className="absolute top-4 right-4 z-10 no-print">
           <LanguageSwitcher />
         </div>
       <div className="container mx-auto px-4 py-8 md:py-16">
-        <header className="text-center mb-10">
+        <header className="text-center mb-10 no-print">
           <Icon name="document" className="mx-auto h-12 w-12 text-indigo-600"/>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             {t('app.title')}
@@ -229,7 +229,7 @@ const App: React.FC = () => {
           {analysisResult && !isLoading && !error && contractType && (
             <div>
               <ResultsDisplay analysisResult={analysisResult} contractType={contractType} onAskAboutPoint={askAboutPoint}/>
-               <div className="mt-8 border-t pt-6 flex justify-end">
+               <div className="mt-8 border-t pt-6 flex justify-end no-print">
                  <button
                   type="button"
                   onClick={resetState}
@@ -242,7 +242,7 @@ const App: React.FC = () => {
           )}
         </main>
         
-        <footer className="text-center mt-12 text-sm text-gray-500">
+        <footer className="text-center mt-12 text-sm text-gray-500 no-print">
           <p>{t('app.footer', { year: new Date().getFullYear() })}</p>
           <p className="mt-1">{t('app.poweredBy')}</p>
         </footer>
