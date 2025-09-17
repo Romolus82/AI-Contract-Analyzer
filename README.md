@@ -5,6 +5,10 @@
 
 An intelligent web application that uses the Google Gemini API to analyze legal documents, extract key points, and answer specific questions about the content.
 
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/screenshot/1.jpg?raw=true)
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/screenshot/2.jpg?raw=true)
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/screenshot/3.jpg?raw=true)
+
 ---
 
 ## 🚀 Key Features
