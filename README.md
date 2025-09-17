@@ -3,6 +3,9 @@
 [![Powered by Google Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-blue.svg)](https://ai.google.dev/)
 
 An intelligent web application that uses the Google Gemini API to analyze legal documents, extract key points, and answer specific questions about the content.
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/1.jpg?raw=true)
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/2.jpg?raw=true)
+![Screenshot dell'applicazione](https://github.com/Romolus82/AI-Contract-Analyzer/blob/main/3.jpg?raw=true)
 
 ---
 
