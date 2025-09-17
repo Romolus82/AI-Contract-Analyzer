@@ -52,8 +52,13 @@ const analysisSchema = {
             type: Type.STRING,
             description: "The exact, verbatim quote from the contract that corresponds to this point.",
           },
+          score: {
+            type: Type.STRING,
+            description: "The importance of the positive point for the signatory, rated as 'Basso', 'Medio', or 'Alto'. 'Alto' indicates a very significant advantage.",
+            enum: ["Basso", "Medio", "Alto"],
+          },
         },
-        required: ["description", "source"],
+        required: ["description", "source", "score"],
       },
     },
     cons: {
@@ -70,8 +75,13 @@ const analysisSchema = {
             type: Type.STRING,
             description: "The exact, verbatim quote from the contract that corresponds to this point.",
           },
+          score: {
+            type: Type.STRING,
+            description: "The risk level of the negative point for the signatory, rated as 'Basso', 'Medio', or 'Alto'. 'Alto' indicates a very high risk or a major disadvantage.",
+            enum: ["Basso", "Medio", "Alto"],
+          },
         },
-        required: ["description", "source"],
+        required: ["description", "source", "score"],
       },
     },
   },
@@ -148,6 +158,9 @@ export const analyzeContract = async (contents: any, contractType: string, langu
     Then, identify the specific strengths (pros) and weaknesses (cons). For each point, you must provide:
     1. 'description': A clear and concise summary of the point, written in ${language}.
     2. 'source': The exact, verbatim quote from the contract that justifies that point.
+    3. 'score': A rating of 'Basso', 'Medio', or 'Alto' indicating its importance or risk level.
+       - For Pros: 'Alto' means a major benefit, 'Medio' a standard benefit, 'Basso' a minor plus.
+       - For Cons: 'Alto' means a major risk or highly unfavorable clause, 'Medio' a point that requires attention, 'Basso' a minor inconvenience.
 
     Be clear, concise, and to the point. Avoid legal jargon when possible.
     Respond ONLY with the requested JSON object according to the schema. Do not add introductions, conclusions, or any other text.

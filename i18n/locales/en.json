@@ -59,5 +59,10 @@
     "permissionYes": "Yes, search the web",
     "permissionNo": "No, thanks",
     "sources": "Sources:"
+  },
+  "scores": {
+    "basso": "Low",
+    "medio": "Medium",
+    "alto": "High"
   }
 }

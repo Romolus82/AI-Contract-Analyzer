@@ -59,5 +59,10 @@
     "permissionYes": "Sì, cerca sul web",
     "permissionNo": "No, grazie",
     "sources": "Fonti:"
+  },
+  "scores": {
+    "basso": "Basso",
+    "medio": "Medio",
+    "alto": "Alto"
   }
 }

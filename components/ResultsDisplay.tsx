@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AnalysisResult, AnalysisPoint } from '../types';
+import { AnalysisResult, AnalysisPoint, Score } from '../types';
 import { Icon } from './Icon';
 import { SourceModal } from './SourceModal';
 import { useTranslation } from '../i18n/LanguageContext';
@@ -10,13 +10,36 @@ interface ResultsDisplayProps {
   onAskAboutPoint: (text: string) => void;
 }
 
-const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 'thumbsUp' | 'thumbsDown'; color: 'green' | 'red'; onAskAboutPoint: (text: string) => void; noPointsText: string; }> = ({ title, points, icon, color, onAskAboutPoint, noPointsText }) => {
+const ScoreBadge: React.FC<{ score: Score; type: 'pro' | 'con' }> = ({ score, type }) => {
+  const { t } = useTranslation();
+  const proColorMap: Record<Score, string> = {
+    'Alto': 'bg-green-200 text-green-800 ring-green-600/20',
+    'Medio': 'bg-green-100 text-green-700 ring-green-600/10',
+    'Basso': 'bg-gray-100 text-gray-600 ring-gray-500/10',
+  };
+  const conColorMap: Record<Score, string> = {
+    'Alto': 'bg-red-200 text-red-800 ring-red-600/20',
+    'Medio': 'bg-orange-100 text-orange-800 ring-orange-600/20',
+    'Basso': 'bg-yellow-100 text-yellow-800 ring-yellow-600/20',
+  };
+  const color = type === 'pro' ? proColorMap[score] : conColorMap[score];
+  
+  const scoreKey = `scores.${score.toLowerCase()}` as keyof typeof t;
+  const translatedScore = t(scoreKey);
+
+  return (
+    <span className={`inline-flex flex-shrink-0 items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${color}`}>
+      {translatedScore}
+    </span>
+  );
+};
+
+const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 'thumbsUp' | 'thumbsDown'; type: 'pro' | 'con'; onAskAboutPoint: (text: string) => void; noPointsText: string; }> = ({ title, points, icon, type, onAskAboutPoint, noPointsText }) => {
   const [modalContent, setModalContent] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const hasPoints = points && points.length > 0;
-  const textColor = `text-${color}-700`;
-  const iconColor = `text-${color}-500`;
+  const textColor = type === 'pro' ? 'text-green-700' : 'text-red-700';
 
   return (
     <>
@@ -26,12 +49,16 @@ const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 
           {title}
         </h3>
         {hasPoints ? (
-          <ul role="list" className="mt-4 space-y-3 text-gray-700">
+          <ul role="list" className="mt-4 space-y-4 text-gray-700">
             {points.map((point, index) => (
-              <li key={`${color}-${index}`} className="flex items-start">
-                <span className={`${iconColor} mr-3 mt-1 text-xl flex-shrink-0`} aria-hidden="true">{icon === 'thumbsUp' ? '+' : '-'}</span>
-                <span className="flex-grow">{point.description}</span>
-                <div className="flex items-center flex-shrink-0 ml-2 space-x-2 no-print">
+              <li key={`${type}-${index}`} className="flex flex-col sm:flex-row sm:items-start">
+                <div className="flex-grow">
+                  <div className="flex items-center mb-1 sm:mb-0">
+                     <ScoreBadge score={point.score} type={type} />
+                  </div>
+                  <p className="mt-1 sm:mt-2">{point.description}</p>
+                </div>
+                <div className="flex items-center flex-shrink-0 sm:ml-4 mt-2 sm:mt-0 space-x-2 no-print self-start">
                     {point.source && (
                        <button onClick={() => setModalContent(point.source)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label={t('results.showSourceAria')}>
                          <Icon name="info" className="h-5 w-5"/>
@@ -63,6 +90,12 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, 
   const handlePrint = () => {
     window.print();
   };
+  
+  // Define score order and sort the points
+  const scoreOrder: Record<Score, number> = { 'Alto': 3, 'Medio': 2, 'Basso': 1 };
+  
+  const sortedPros = [...pros].sort((a, b) => (scoreOrder[b.score] || 0) - (scoreOrder[a.score] || 0));
+  const sortedCons = [...cons].sort((a, b) => (scoreOrder[b.score] || 0) - (scoreOrder[a.score] || 0));
 
   return (
     <div className="printable-area">
@@ -95,18 +128,18 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
         <AnalysisSection 
             title={t('results.prosTitle')} 
-            points={pros} 
+            points={sortedPros} 
             icon="thumbsUp" 
-            color="green" 
+            type="pro" 
             onAskAboutPoint={onAskAboutPoint} 
             noPointsText={t('results.noPoints', { pointsType: t('results.prosTitleSimple')})}
         />
         <div className="py-4 md:border-l md:pl-8 border-gray-200">
           <AnalysisSection 
             title={t('results.consTitle')} 
-            points={cons} 
+            points={sortedCons} 
             icon="thumbsDown" 
-            color="red" 
+            type="con" 
             onAskAboutPoint={onAskAboutPoint} 
             noPointsText={t('results.noPoints', { pointsType: t('results.consTitleSimple')})}
           />

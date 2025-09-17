@@ -1,8 +1,11 @@
 import type { Chat } from "@google/genai";
 
+export type Score = 'Basso' | 'Medio' | 'Alto';
+
 export interface AnalysisPoint {
   description: string;
   source: string;
+  score: Score;
 }
 
 export interface AnalysisResult {
