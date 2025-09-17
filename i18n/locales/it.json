@@ -1,0 +1,59 @@
+{
+  "app": {
+    "title": "Analizzatore di Contratti AI",
+    "subtitle": "Carica o incolla un documento per un'analisi legale intelligente.",
+    "tryAgain": "Riprova",
+    "analyzeAnother": "Analizza un altro documento",
+    "initialChatMessage": "Ciao! Sono qui per rispondere a domande specifiche su questo documento.",
+    "footer": "© {{year}} Analizzatore di Contratti AI. Tutti i diritti riservati.",
+    "poweredBy": "Realizzato con Google Gemini"
+  },
+  "contractInput": {
+    "dropzoneTitle": "Trascina un file qui o clicca per caricare",
+    "dropzoneSubtitle": "PDF, DOCX, PNG, JPG fino a 10MB",
+    "removeFile": "Rimuovi",
+    "or": "Oppure",
+    "pasteLabel": "Incolla il testo del tuo contratto",
+    "pastePlaceholder": "Esempio: 'Il sottoscritto Mario Rossi, nato a...'",
+    "analyzeButton": "Analizza Contratto",
+    "analyzingButton": "Analisi in corso..."
+  },
+  "loader": {
+    "waiting": "In attesa...",
+    "identifying": "Identificazione del tipo di contratto...",
+    "analyzing": "L'IA sta diventando un'esperta in {{contractType}} e sta analizzando il documento...",
+    "takeMoments": "Potrebbero volerci alcuni istanti.",
+    "contractsFallback": "contratti"
+  },
+  "error": {
+    "title": "Errore durante l'analisi"
+  },
+  "results": {
+    "title": "Risultati dell'Analisi per: ",
+    "summaryTitle": "Riepilogo del Contratto",
+    "evaluationTitle": "Valutazione Complessiva",
+    "prosTitle": "Punti Positivi (Pro)",
+    "consTitle": "Punti di Attenzione (Contro)",
+    "noPoints": "Nessun {{pointsType}} specifico è stato identificato.",
+    "prosTitleSimple": "punti positivi",
+    "consTitleSimple": "punti di attenzione",
+    "showSourceAria": "Mostra fonte",
+    "askDetailsAria": "Chiedi dettagli",
+    "disclaimerTitle": "Disclaimer",
+    "disclaimerText": "Questa analisi è generata da un'intelligenza artificiale e deve essere considerata come supporto informativo, non come consulenza legale. Si raccomanda vivamente di consultare un avvocato qualificato per una revisione completa e professionale del contratto."
+  },
+  "sourceModal": {
+    "title": "Estratto dal Documento",
+    "close": "Chiudi"
+  },
+  "chat": {
+    "openAria": "Apri chat",
+    "header": "Chatta con il Documento",
+    "closeAria": "Chiudi chat",
+    "placeholder": "Chiedi qualcosa sul contratto...",
+    "sendAria": "Invia messaggio",
+    "permissionYes": "Sì, cerca sul web",
+    "permissionNo": "No, grazie",
+    "sources": "Fonti:"
+  }
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AnalysisResult, AnalysisPoint } from '../types';
 import { Icon } from './Icon';
 import { SourceModal } from './SourceModal';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface ResultsDisplayProps {
   analysisResult: AnalysisResult;
@@ -9,8 +10,9 @@ interface ResultsDisplayProps {
   onAskAboutPoint: (text: string) => void;
 }
 
-const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 'thumbsUp' | 'thumbsDown'; color: 'green' | 'red'; onAskAboutPoint: (text: string) => void; }> = ({ title, points, icon, color, onAskAboutPoint }) => {
+const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 'thumbsUp' | 'thumbsDown'; color: 'green' | 'red'; onAskAboutPoint: (text: string) => void; noPointsText: string; }> = ({ title, points, icon, color, onAskAboutPoint, noPointsText }) => {
   const [modalContent, setModalContent] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const hasPoints = points && points.length > 0;
   const textColor = `text-${color}-700`;
@@ -31,18 +33,18 @@ const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 
                 <span className="flex-grow">{point.description}</span>
                 <div className="flex items-center flex-shrink-0 ml-2 space-x-2">
                     {point.source && (
-                       <button onClick={() => setModalContent(point.source)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label="Mostra fonte">
+                       <button onClick={() => setModalContent(point.source)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label={t('results.showSourceAria')}>
                          <Icon name="info" className="h-5 w-5"/>
                        </button>
                     )}
-                    <button onClick={() => onAskAboutPoint(point.description)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label="Chiedi approfondimenti">
+                    <button onClick={() => onAskAboutPoint(point.description)} className="text-gray-400 hover:text-indigo-600 transition-colors" aria-label={t('results.askDetailsAria')}>
                         <Icon name="chatBubble" className="h-5 w-5"/>
                     </button>
                 </div>
               </li>
             ))}
           </ul>
-        ) : <p className="mt-4 text-gray-500">{`Nessun ${title.toLowerCase()} specifico è stato identificato.`}</p>}
+        ) : <p className="mt-4 text-gray-500">{noPointsText}</p>}
       </div>
       <SourceModal 
         isOpen={!!modalContent}
@@ -55,17 +57,45 @@ const AnalysisSection: React.FC<{ title: string; points: AnalysisPoint[]; icon: 
 
 
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, contractType, onAskAboutPoint }) => {
-  const { pros, cons } = analysisResult;
+  const { t } = useTranslation();
+  const { summary, evaluation, pros, cons } = analysisResult;
 
   return (
     <div>
        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        Risultati dell'Analisi per: <span className="text-indigo-600">{contractType}</span>
+        {t('results.title')}<span className="text-indigo-600">{contractType}</span>
       </h2>
+
+      <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('results.summaryTitle')}</h3>
+          <p className="text-sm text-gray-600">{summary}</p>
+      </div>
+
+      <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('results.evaluationTitle')}</h3>
+          <blockquote className="border-l-4 border-indigo-500 bg-indigo-50 p-4">
+            <p className="font-medium text-indigo-800">{evaluation}</p>
+          </blockquote>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-        <AnalysisSection title="Punti a Favore (Pro)" points={pros} icon="thumbsUp" color="green" onAskAboutPoint={onAskAboutPoint} />
+        <AnalysisSection 
+            title={t('results.prosTitle')} 
+            points={pros} 
+            icon="thumbsUp" 
+            color="green" 
+            onAskAboutPoint={onAskAboutPoint} 
+            noPointsText={t('results.noPoints', { pointsType: t('results.prosTitleSimple')})}
+        />
         <div className="py-4 md:border-l md:pl-8 border-gray-200">
-          <AnalysisSection title="Punti di Attenzione (Contro)" points={cons} icon="thumbsDown" color="red" onAskAboutPoint={onAskAboutPoint} />
+          <AnalysisSection 
+            title={t('results.consTitle')} 
+            points={cons} 
+            icon="thumbsDown" 
+            color="red" 
+            onAskAboutPoint={onAskAboutPoint} 
+            noPointsText={t('results.noPoints', { pointsType: t('results.consTitleSimple')})}
+          />
         </div>
       </div>
 
@@ -77,10 +107,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysisResult, 
               <Icon name="warning" className="h-5 w-5 text-yellow-400" aria-hidden="true" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-yellow-800">Disclaimer</h3>
+              <h3 className="text-sm font-medium text-yellow-800">{t('results.disclaimerTitle')}</h3>
               <div className="mt-2 text-sm text-yellow-700">
                 <p>
-                  Questa analisi è generata da un'intelligenza artificiale e deve essere considerata come un supporto informativo, non come una consulenza legale. Si consiglia vivamente di consultare un avvocato qualificato per una revisione completa e professionale del contratto.
+                  {t('results.disclaimerText')}
                 </p>
               </div>
             </div>

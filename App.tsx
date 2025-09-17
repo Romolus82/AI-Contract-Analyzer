@@ -6,19 +6,23 @@ import { Loader } from './components/Loader';
 import { ErrorMessage } from './components/ErrorMessage';
 import { ChatBox } from './components/ChatBox';
 import { ChatOpener } from './components/ChatOpener';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { identifyContractType, analyzeContract, startChatWithDocument, performWebSearchForQuery } from './services/geminiService';
 import { fileToGenerativePart, extractTextFromDocx } from './utils';
 import { AnalysisResult, ChatMessage } from './types';
 import { Icon } from './components/Icon';
+import { useTranslation } from './i18n/LanguageContext';
 
 type AnalysisStep = 'IDLE' | 'IDENTIFYING' | 'ANALYZING';
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const [contractText, setContractText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisStep, setAnalysisStep] = useState<AnalysisStep>('IDLE');
   const [contractType, setContractType] = useState<string | null>(null);
+  const [documentLanguage, setDocumentLanguage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
@@ -36,6 +40,7 @@ const App: React.FC = () => {
     setError(null);
     setAnalysisResult(null);
     setContractType(null);
+    setDocumentLanguage(null);
     setChatSession(null);
     setChatHistory([]);
 
@@ -61,18 +66,19 @@ const App: React.FC = () => {
       const identification = await identifyContractType(content);
 
       if (!identification.isContract) {
-        throw new Error(`Il documento fornito non sembra essere un contratto. L'IA lo ha classificato come: "${identification.contractType}".`);
+        throw new Error(`The provided document does not appear to be a contract. The AI classified it as: "${identification.contractType}".`);
       }
       setContractType(identification.contractType);
+      setDocumentLanguage(identification.language);
 
       setAnalysisStep('ANALYZING');
-      const result = await analyzeContract(content, identification.contractType);
+      const result = await analyzeContract(content, identification.contractType, identification.language);
       setAnalysisResult(result);
       
       // Start chat session after successful analysis
-      const chat = startChatWithDocument(content, identification.contractType);
+      const chat = startChatWithDocument(content, identification.contractType, identification.language);
       setChatSession(chat);
-      setChatHistory([{ role: 'model', text: 'Ciao! Sono a tua disposizione per domande specifiche su questo documento.' }]);
+      setChatHistory([{ role: 'model', text: t('app.initialChatMessage') }]);
 
 
     } catch (e: any) {
@@ -81,7 +87,7 @@ const App: React.FC = () => {
       setIsLoading(false);
       setAnalysisStep('IDLE');
     }
-  }, [contractText, file]);
+  }, [contractText, file, t]);
   
   const handleSendMessage = useCallback(async () => {
     if (!chatInput.trim() || !chatSession || isChatLoading) return;
@@ -99,7 +105,7 @@ const App: React.FC = () => {
         setPermissionRequest({ originalQuery: userQuery });
         const permissionMessage: ChatMessage = {
           role: 'model',
-          text: "Non ho trovato una risposta nel documento. Posso cercare la risposta sul web per te?",
+          text: "I couldn't find an answer in the document. Can I search the web for you?",
           isPermissionRequest: true,
         };
         setChatHistory(prev => [...prev, permissionMessage]);
@@ -109,7 +115,7 @@ const App: React.FC = () => {
       }
     } catch (e) {
       console.error("Error sending chat message:", e);
-      const errorMessage: ChatMessage = { role: 'model', text: 'Spiacente, si è verificato un errore. Riprova.' };
+      const errorMessage: ChatMessage = { role: 'model', text: 'Sorry, an error occurred. Please try again.' };
       setChatHistory(prev => [...prev, errorMessage]);
     } finally {
       setIsChatLoading(false);
@@ -117,7 +123,7 @@ const App: React.FC = () => {
   }, [chatInput, chatSession, isChatLoading]);
   
   const handlePermissionResponse = useCallback(async (granted: boolean) => {
-    if (!permissionRequest) return;
+    if (!permissionRequest || !documentLanguage) return;
 
     // Remove the permission request message
     setChatHistory(prev => prev.filter(msg => !msg.isPermissionRequest));
@@ -125,7 +131,7 @@ const App: React.FC = () => {
     if (!granted) {
       const denialMessage: ChatMessage = {
         role: 'model',
-        text: "Capito. Non effettuerò la ricerca. C'è altro che posso cercare nel documento per te?",
+        text: "Understood. I will not perform the search. Is there anything else I can look for in the document for you?",
       };
       setChatHistory(prev => [...prev, denialMessage]);
       setPermissionRequest(null);
@@ -135,7 +141,7 @@ const App: React.FC = () => {
     setIsChatLoading(true);
     setPermissionRequest(null);
     try {
-      const { text, sources } = await performWebSearchForQuery(permissionRequest.originalQuery, chatHistory);
+      const { text, sources } = await performWebSearchForQuery(permissionRequest.originalQuery, chatHistory, documentLanguage);
       const webResponseMessage: ChatMessage = {
         role: 'model',
         text: text,
@@ -144,16 +150,16 @@ const App: React.FC = () => {
       setChatHistory(prev => [...prev, webResponseMessage]);
     } catch (e) {
         console.error("Error handling permission response:", e);
-        const errorMessage: ChatMessage = { role: 'model', text: 'Spiacente, si è verificato un errore durante la ricerca web.' };
+        const errorMessage: ChatMessage = { role: 'model', text: 'Sorry, an error occurred during the web search.' };
         setChatHistory(prev => [...prev, errorMessage]);
     } finally {
         setIsChatLoading(false);
     }
 
-  }, [permissionRequest, chatHistory]);
+  }, [permissionRequest, chatHistory, documentLanguage]);
 
   const askAboutPoint = (text: string) => {
-    setChatInput(`Puoi darmi maggiori dettagli su questo punto? "${text}"`);
+    setChatInput(`Can you give me more details about this point? "${text}"`);
     setIsChatOpen(true);
   };
 
@@ -165,6 +171,7 @@ const App: React.FC = () => {
     setAnalysisResult(null);
     setAnalysisStep('IDLE');
     setContractType(null);
+    setDocumentLanguage(null);
     setChatSession(null);
     setChatHistory([]);
     setChatInput('');
@@ -175,14 +182,17 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans">
+       <div className="absolute top-4 right-4 z-10">
+          <LanguageSwitcher />
+        </div>
       <div className="container mx-auto px-4 py-8 md:py-16">
         <header className="text-center mb-10">
           <Icon name="document" className="mx-auto h-12 w-12 text-indigo-600"/>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-            Analizzatore di Contratti AI
+            {t('app.title')}
           </h1>
           <p className="mt-4 text-lg leading-8 text-gray-600">
-            Carica o incolla un documento per un'analisi legale intelligente.
+            {t('app.subtitle')}
           </p>
         </header>
 
@@ -210,7 +220,7 @@ const App: React.FC = () => {
                   onClick={resetState}
                   className="rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Riprova
+                  {t('app.tryAgain')}
                 </button>
               </div>
             </>
@@ -225,7 +235,7 @@ const App: React.FC = () => {
                   onClick={resetState}
                   className="rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Analizza un altro documento
+                  {t('app.analyzeAnother')}
                 </button>
               </div>
             </div>
@@ -233,8 +243,8 @@ const App: React.FC = () => {
         </main>
         
         <footer className="text-center mt-12 text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} AI Contract Analyzer. Tutti i diritti riservati.</p>
-          <p className="mt-1">Powered by Google Gemini</p>
+          <p>{t('app.footer', { year: new Date().getFullYear() })}</p>
+          <p className="mt-1">{t('app.poweredBy')}</p>
         </footer>
       </div>
 

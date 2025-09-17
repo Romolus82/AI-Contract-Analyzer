@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Icon } from './Icon';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface ContractInputProps {
   contractText: string;
@@ -12,6 +13,7 @@ interface ContractInputProps {
 }
 
 export const ContractInput: React.FC<ContractInputProps> = ({ contractText, setContractText, onAnalyze, isLoading, file, setFile, clearFile }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +49,9 @@ export const ContractInput: React.FC<ContractInputProps> = ({ contractText, setC
       >
         <Icon name="upload" className="mx-auto h-12 w-12 text-gray-400" />
         <span className="mt-2 block text-sm font-semibold text-gray-900">
-          Trascina un file qui o clicca per caricarlo
+          {t('contractInput.dropzoneTitle')}
         </span>
-        <span className="block text-xs text-gray-500">PDF, DOCX, PNG, JPG fino a 10MB</span>
+        <span className="block text-xs text-gray-500">{t('contractInput.dropzoneSubtitle')}</span>
         <input ref={fileInputRef} id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.docx,.png,.jpg,.jpeg"/>
       </label>
       
@@ -65,7 +67,7 @@ export const ContractInput: React.FC<ContractInputProps> = ({ contractText, setC
               onClick={clearFile}
               className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold"
             >
-              Rimuovi
+              {t('contractInput.removeFile')}
             </button>
           </div>
         </div>
@@ -76,19 +78,19 @@ export const ContractInput: React.FC<ContractInputProps> = ({ contractText, setC
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-2 text-sm text-gray-500">Oppure</span>
+          <span className="bg-slate-50 px-2 text-sm text-gray-500">{t('contractInput.or')}</span>
         </div>
       </div>
 
       <div className="mt-6">
         <label htmlFor="contract-text" className="block text-sm font-medium leading-6 text-gray-900 mb-2">
-          Incolla il testo del tuo contratto
+          {t('contractInput.pasteLabel')}
         </label>
         <textarea
           id="contract-text"
           rows={8}
           className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200"
-          placeholder="Esempio: 'Il sottoscritto Mario Rossi, nato a...'"
+          placeholder={t('contractInput.pastePlaceholder')}
           value={contractText}
           onChange={(e) => setContractText(e.target.value)}
           disabled={isLoading}
@@ -102,7 +104,7 @@ export const ContractInput: React.FC<ContractInputProps> = ({ contractText, setC
           disabled={isLoading || (!contractText.trim() && !file)}
           className="rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors duration-200"
         >
-          {isLoading ? 'Analisi in corso...' : 'Analizza Contratto'}
+          {isLoading ? t('contractInput.analyzingButton') : t('contractInput.analyzeButton')}
         </button>
       </div>
     </div>

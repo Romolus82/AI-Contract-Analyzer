@@ -16,19 +16,31 @@ const identificationSchema = {
     },
     contractType: {
       type: Type.STRING,
-      description: "The specific type of the contract in Italian (e.g., 'Contratto di Locazione', 'Accordo di Non Divulgazione'). If it's not a contract, this should be 'Non è un contratto'.",
+      description: "The specific type of the contract (e.g., 'Employment Contract', 'Lease Agreement'). If it's not a contract, this should be 'Not a contract'. The language of the type should match the document's language.",
     },
+    language: {
+        type: Type.STRING,
+        description: "The detected primary language of the document as a string (e.g., 'Italian', 'English', 'Spanish')."
+    }
   },
-  required: ["isContract", "contractType"],
+  required: ["isContract", "contractType", "language"],
 };
 
 // Define the expected JSON schema for the analysis result
 const analysisSchema = {
   type: Type.OBJECT,
   properties: {
+    summary: {
+      type: Type.STRING,
+      description: "A brief, neutral summary of what the contract is about. This should be in the document's native language.",
+    },
+    evaluation: {
+      type: Type.STRING,
+      description: "A synthetic evaluation of whether the contract is generally good or not for the signatory (e.g., 'This appears to be a standard and fair contract', 'This contract contains several clauses that are unfavorable to the employee and requires careful review'). This should be in the document's native language.",
+    },
     pros: {
       type: Type.ARRAY,
-      description: "List of positive aspects or advantages for the user in the contract, in Italian.",
+      description: "List of positive aspects or advantages for the user in the contract. This should be in the document's native language.",
       items: {
         type: Type.OBJECT,
         properties: {
@@ -46,7 +58,7 @@ const analysisSchema = {
     },
     cons: {
       type: Type.ARRAY,
-      description: "List of negative aspects, risks, or disadvantages for the user in the contract, in Italian.",
+      description: "List of negative aspects, risks, or disadvantages for the user in the contract. This should be in the document's native language.",
       items: {
         type: Type.OBJECT,
         properties: {
@@ -63,7 +75,7 @@ const analysisSchema = {
       },
     },
   },
-  required: ["pros", "cons"],
+  required: ["summary", "evaluation", "pros", "cons"],
 };
 
 
@@ -74,10 +86,12 @@ const analysisSchema = {
  */
 export const identifyContractType = async (contents: any): Promise<IdentificationResult> => {
     const prompt = `
-      Analizza il seguente documento. È un contratto legale? Se sì, qual è il suo tipo specifico?
-      Esempi di tipo: "Contratto di Lavoro", "Contratto di Locazione", "Accordo di Riservatezza (NDA)", "Contratto di Appalto".
-      Se non è un contratto legale, indicalo.
-      Rispondi ESCLUSIVAMENTE con l'oggetto JSON richiesto.
+      Analyze the following document.
+      1. First, detect the primary language of the document (e.g., 'Italian', 'English').
+      2. Determine if it is a legal contract.
+      3. If it is a contract, identify its specific type in the detected language. Examples of types: "Employment Contract", "Contratto di Locazione", "Accord de Non-Divulgation (NDA)".
+      4. If it is not a legal contract, indicate that.
+      Respond ONLY with the requested JSON object.
     `;
     
     let requestContents: any;
@@ -104,7 +118,7 @@ export const identifyContractType = async (contents: any): Promise<Identificatio
     }
     const result: IdentificationResult = JSON.parse(jsonText);
     
-    if (typeof result.isContract !== 'boolean' || typeof result.contractType !== 'string') {
+    if (typeof result.isContract !== 'boolean' || typeof result.contractType !== 'string' || typeof result.language !== 'string') {
         throw new Error("Invalid identification response format from AI.");
     }
 
@@ -121,17 +135,22 @@ export const identifyContractType = async (contents: any): Promise<Identificatio
  * Analyzes contract content using the Gemini API, acting as an expert for a specific contract type.
  * @param contents The contract content to analyze.
  * @param contractType The specific type of contract, used to prime the AI.
+ * @param language The language of the contract.
  * @returns A promise that resolves to an AnalysisResult object.
  */
-export const analyzeContract = async (contents: any, contractType: string): Promise<AnalysisResult> => {
+export const analyzeContract = async (contents: any, contractType: string, language: string): Promise<AnalysisResult> => {
   const systemInstruction = `
-    Sei un avvocato italiano esperto e meticoloso, specializzato in ${contractType}.
-    Il tuo compito è analizzare il contratto fornito dal punto di vista della persona che lo deve firmare (ad esempio il lavoratore, l'inquilino, il prestatore d'opera).
-    Per ogni punto di forza (pro) e punto di debolezza (contro) che identifichi, devi fornire due cose:
-    1.  'description': Una descrizione chiara e concisa del punto.
-    2.  'source': La citazione esatta e letterale del testo del contratto che giustifica quel punto.
-    Sii chiaro, conciso e vai dritto al punto. Evita il gergo legale quando possibile.
-    Rispondi ESCLUSIVAMENTE con l'oggetto JSON richiesto. Non aggiungere introduzioni, conclusioni o altre frasi.
+    You are a meticulous, expert lawyer specializing in ${contractType}. Your native language is ${language}.
+    Your task is to analyze the provided contract from the perspective of the person who has to sign it (e.g., the employee, the tenant, the service provider).
+
+    First, provide a brief, neutral 'summary' of what the contract is about.
+    Second, provide a synthetic 'evaluation' of whether the contract is generally favorable or unfavorable for the signatory.
+    Then, identify the specific strengths (pros) and weaknesses (cons). For each point, you must provide:
+    1. 'description': A clear and concise summary of the point, written in ${language}.
+    2. 'source': The exact, verbatim quote from the contract that justifies that point.
+
+    Be clear, concise, and to the point. Avoid legal jargon when possible.
+    Respond ONLY with the requested JSON object according to the schema. Do not add introductions, conclusions, or any other text.
   `;
   
   try {
@@ -152,7 +171,7 @@ export const analyzeContract = async (contents: any, contractType: string): Prom
     }
     const result: AnalysisResult = JSON.parse(jsonText);
     
-    if (!result || !Array.isArray(result.pros) || !Array.isArray(result.cons)) {
+    if (!result || typeof result.summary !== 'string' || typeof result.evaluation !== 'string' || !Array.isArray(result.pros) || !Array.isArray(result.cons)) {
         throw new Error("Invalid response format from AI.");
     }
 
@@ -179,14 +198,15 @@ export const analyzeContract = async (contents: any, contractType: string): Prom
  * Starts a new chat session with the AI, contextualized with the contract's content.
  * @param documentContent The content of the document (text or parts).
  * @param contractType The type of the contract.
+ * @param language The language of the document.
  * @returns The initialized Chat object.
  */
-export const startChatWithDocument = (documentContent: any, contractType: string): Chat => {
+export const startChatWithDocument = (documentContent: any, contractType: string, language: string): Chat => {
   const systemInstruction = `
-    Sei un assistente legale specializzato in ${contractType}.
-    Il tuo unico scopo è rispondere a domande basandoti ESCLUSIVAMENTE sul testo del documento che ti è stato fornito.
-    Non inventare informazioni. Se la risposta non è presente nel testo, rispondi ESATTAMENTE con la stringa '[PERFORM_WEB_SEARCH]' e nient'altro.
-    Sii preciso e cita le parti del testo quando è rilevante.
+    You are a legal assistant specializing in ${contractType}. Your native language is ${language}.
+    Your sole purpose is to answer questions based EXCLUSIVELY on the text of the document you have been provided.
+    Do not invent information. If the answer is not in the text, respond EXACTLY with the string '[PERFORM_WEB_SEARCH]' and nothing else.
+    Be precise and quote parts of the text when relevant. Respond in ${language}.
   `;
 
   const chat = ai.chats.create({
@@ -195,7 +215,7 @@ export const startChatWithDocument = (documentContent: any, contractType: string
       systemInstruction: systemInstruction,
     },
     // The initial message from the user is the document itself.
-    history: [{ role: 'user', parts: [{ text: "Analizza e rispondi alle domande basandoti solo su questo documento:" }, ...(Array.isArray(documentContent.parts) ? documentContent.parts : [{text: documentContent}])] }],
+    history: [{ role: 'user', parts: [{ text: "Analyze and answer questions based only on this document:" }, ...(Array.isArray(documentContent.parts) ? documentContent.parts : [{text: documentContent}])] }],
   });
 
   return chat;
@@ -205,23 +225,24 @@ export const startChatWithDocument = (documentContent: any, contractType: string
  * Performs a web search for a given query using the Gemini API, considering chat context.
  * @param query The user's question to search for.
  * @param history The recent chat history for context.
+ * @param language The target language for the answer.
  * @returns A promise that resolves to an object containing the answer text and sources.
  */
-export const performWebSearchForQuery = async (query: string, history: ChatMessage[]): Promise<{ text: string, sources: GroundingSource[] }> => {
+export const performWebSearchForQuery = async (query: string, history: ChatMessage[], language: string): Promise<{ text: string, sources: GroundingSource[] }> => {
     try {
         const contextHistory = history
           .slice(-4) // Take the last 4 messages for context
-          .map(msg => `${msg.role === 'user' ? 'Utente' : 'Assistente'}: ${msg.text}`)
+          .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
           .join('\n');
 
         const finalPrompt = `
-Basandoti sulla seguente conversazione, formula una risposta chiara e concisa alla domanda finale dell'utente utilizzando le informazioni più recenti dal web.
+Based on the following conversation, formulate a clear and concise answer to the user's final question using the latest information from the web. The answer must be in ${language}.
 
---- INIZIO CONTESTO CONVERSAZIONE ---
+--- START CONVERSATION CONTEXT ---
 ${contextHistory}
---- FINE CONTESTO CONVERSAZIONE ---
+--- END CONVERSATION CONTEXT ---
 
-DOMANDA FINALE DELL'UTENTE: "${query}"
+USER'S FINAL QUESTION: "${query}"
 `;
         const response = await ai.models.generateContent({
             model: model,
@@ -231,7 +252,7 @@ DOMANDA FINALE DELL'UTENTE: "${query}"
             },
         });
 
-        const text = response.text?.trim() ?? "Non sono riuscito a trovare una risposta tramite la ricerca web. Riprova riformulando la domanda.";
+        const text = response.text?.trim() ?? "I was unable to find an answer through web search. Please try rephrasing the question.";
         const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
         
         const sources: GroundingSource[] = groundingChunks

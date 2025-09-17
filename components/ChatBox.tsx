@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from '../types';
 import { Icon } from './Icon';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface ChatBoxProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLoading, input, setInput, onSendMessage, onPermissionResponse }) => {
+  const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -37,11 +39,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
     <div className={`fixed bottom-4 right-4 w-full max-w-md h-[500px] bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200 z-50 transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
       {/* Header */}
       <div className="relative flex-shrink-0 p-4 bg-gray-50 border-b border-gray-200 rounded-t-lg flex items-center justify-center">
-        <h3 className="text-lg font-semibold text-gray-800">Chat con il Documento</h3>
+        <h3 className="text-lg font-semibold text-gray-800">{t('chat.header')}</h3>
          <button
           onClick={onClose}
           className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors"
-          aria-label="Chiudi chat"
+          aria-label={t('chat.closeAria')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -72,16 +74,16 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
                 {msg.isPermissionRequest && !isLoading && (
                    <div className="mt-3 flex gap-2">
                      <button onClick={() => onPermissionResponse(true)} className="flex-1 bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-indigo-200 transition-colors">
-                       Sì, cerca sul web
+                       {t('chat.permissionYes')}
                      </button>
                      <button onClick={() => onPermissionResponse(false)} className="flex-1 bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-gray-200 transition-colors">
-                       No, grazie
+                       {t('chat.permissionNo')}
                      </button>
                    </div>
                 )}
                 {msg.sources && msg.sources.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
-                      <h4 className="text-xs font-semibold text-gray-500 mb-2">Fonti:</h4>
+                      <h4 className="text-xs font-semibold text-gray-500 mb-2">{t('chat.sources')}</h4>
                       <ul className="space-y-1.5">
                         {msg.sources.map((source, i) => (
                            <li key={i} className="flex items-start">
@@ -122,7 +124,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Chiedi qualcosa sul contratto..."
+            placeholder={t('chat.placeholder')}
             className="w-full p-2 pr-12 rounded-md border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none transition"
             rows={2}
             disabled={isLoading || !!history.find(m => m.isPermissionRequest)}
@@ -131,7 +133,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ isOpen, onClose, history, isLo
             onClick={onSendMessage}
             disabled={isLoading || !input.trim() || !!history.find(m => m.isPermissionRequest)}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors"
-            aria-label="Invia messaggio"
+            aria-label={t('chat.sendAria')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
               <path d="M3.105 3.105a.75.75 0 0 1 .842-.292l12.5 5a.75.75 0 0 1 0 1.374l-12.5 5A.75.75 0 0 1 3 14.5V4.25a.75.75 0 0 1 .105-.345Z" />

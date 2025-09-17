@@ -6,6 +6,8 @@ export interface AnalysisPoint {
 }
 
 export interface AnalysisResult {
+  summary: string;
+  evaluation: string;
   pros: AnalysisPoint[];
   cons: AnalysisPoint[];
 }
@@ -13,6 +15,7 @@ export interface AnalysisResult {
 export interface IdentificationResult {
   isContract: boolean;
   contractType: string;
+  language: string;
 }
 
 export interface GroundingSource {

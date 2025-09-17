@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '../i18n/LanguageContext';
 
 type AnalysisStep = 'IDLE' | 'IDENTIFYING' | 'ANALYZING';
 
@@ -8,10 +9,12 @@ interface LoaderProps {
 }
 
 export const Loader: React.FC<LoaderProps> = ({ analysisStep, contractType }) => {
+  const { t } = useTranslation();
+  
   const messages: Record<AnalysisStep, string> = {
-    IDLE: 'In attesa...',
-    IDENTIFYING: 'Identificazione del tipo di contratto in corso...',
-    ANALYZING: `L'IA sta diventando un esperto di ${contractType || 'contratti'} e sta analizzando il documento...`,
+    IDLE: t('loader.waiting'),
+    IDENTIFYING: t('loader.identifying'),
+    ANALYZING: t('loader.analyzing', { contractType: contractType || t('loader.contractsFallback') }),
   };
 
   const message = messages[analysisStep] || messages.IDENTIFYING;
@@ -20,7 +23,7 @@ export const Loader: React.FC<LoaderProps> = ({ analysisStep, contractType }) =>
     <div className="flex flex-col justify-center items-center p-8 text-center">
       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mb-6"></div>
       <p className="text-lg font-semibold text-gray-700">{message}</p>
-      <p className="text-sm text-gray-500 mt-2">Questa operazione potrebbe richiedere alcuni istanti.</p>
+      <p className="text-sm text-gray-500 mt-2">{t('loader.takeMoments')}</p>
     </div>
   );
 };
