@@ -29,7 +29,7 @@
   "error": {
     "title": "Errore durante l'analisi",
     "fileTooLarge": "Il file supera il limite di 10MB. Si prega di caricarne uno più piccolo.",
-    "textTooLong": "Il testo incollato supera il limite di 30.000 caratteri. Si prega di ridurlo."
+    "textTooLong": "Il testo incollato supera il limite di 100.000 caratteri. Si prega di ridurlo."
   },
   "results": {
     "title": "Risultati dell'Analisi per: ",

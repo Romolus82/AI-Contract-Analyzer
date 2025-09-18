@@ -29,7 +29,7 @@
   "error": {
     "title": "Error during analysis",
     "fileTooLarge": "The file exceeds the 10MB limit. Please upload a smaller one.",
-    "textTooLong": "The pasted text exceeds the 30,000 character limit. Please shorten it."
+    "textTooLong": "The pasted text exceeds the 100,000 character limit. Please shorten it."
   },
   "results": {
     "title": "Analysis Results for: ",

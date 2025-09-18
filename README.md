@@ -13,7 +13,7 @@ An intelligent web application that uses the Google Gemini API to analyze legal 
 
 ## 🚀 Key Features
 
--   **Multi-Format Analysis**: Upload contracts in **PDF, DOCX, PNG, or JPG** format (up to 10MB), or simply paste the text directly (up to 30,000 characters).
+-   **Multi-Format Analysis**: Upload contracts in **PDF, DOCX, PNG, or JPG** format (up to 10MB), or simply paste the text directly (up to 100,000 characters).
 -   **Automatic Identification**: The AI detects if the document is a contract and identifies its specific type (e.g., Employment Contract, Lease Agreement).
 -   **Quick Summary & Evaluation**: Get an at-a-glance summary of the contract's purpose and a synthetic evaluation of its fairness before diving into the details.
 -   **Pros and Cons Extraction**: Receive a clear, structured summary of the positive aspects (Pros) and points of concern (Cons) from the perspective of the person signing the contract.

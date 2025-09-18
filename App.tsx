@@ -17,7 +17,7 @@ import { useTranslation } from './i18n/LanguageContext';
 type AnalysisStep = 'IDLE' | 'IDENTIFYING' | 'ANALYZING';
 
 const MAX_FILE_SIZE_MB = 10;
-const MAX_TEXT_LENGTH = 30000;
+const MAX_TEXT_LENGTH = 100000;
 
 const App: React.FC = () => {
   const { t } = useTranslation();
